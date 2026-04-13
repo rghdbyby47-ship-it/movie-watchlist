@@ -16,7 +16,7 @@ interface AuthContextType {
   user: SupabaseUser | null;
   profile: Profile | null;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signup: (email: string, nickname: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signup: (email: string, nickname: string, password: string) => Promise<{ success: boolean; error?: string; needsConfirmation?: boolean }>;
   logout: () => Promise<void>;
   updateProfile: (updates: Partial<Profile>) => Promise<void>;
 }
@@ -70,13 +70,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (existing) return { success: false, error: 'Nickname already taken' };
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { nickname } },
     });
 
     if (error) return { success: false, error: error.message };
+
+    // If session is null, Supabase requires email confirmation
+    if (!data.session) {
+      return { success: true, needsConfirmation: true };
+    }
+
+    // Session exists — user is immediately active. Create profile as fallback
+    // in case the DB trigger hasn't fired yet.
+    if (data.user) {
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', data.user.id)
+        .maybeSingle();
+
+      if (!existingProfile) {
+        await supabase.from('profiles').insert({
+          id: data.user.id,
+          nickname,
+          top_movies: [],
+        });
+      }
+    }
+
     return { success: true };
   };
 

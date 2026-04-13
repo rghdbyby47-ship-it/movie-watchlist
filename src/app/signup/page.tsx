@@ -13,6 +13,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,12 +21,36 @@ export default function SignupPage() {
     setError('');
     const result = await signup(email, nickname, password);
     if (result.success) {
-      router.push('/');
+      if (result.needsConfirmation) {
+        setConfirmed(true);
+      } else {
+        router.push('/');
+      }
     } else {
       setError(result.error || 'Signup failed.');
     }
     setLoading(false);
   };
+
+  if (confirmed) {
+    return (
+      <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+        <div className="retro-card" style={{ maxWidth: '420px', width: '100%', textAlign: 'center' }}>
+          <div className="panel-header panel-header-magenta">CHECK YOUR EMAIL</div>
+          <div style={{ fontFamily: '"VT323", monospace', fontSize: '24px', color: 'var(--green)', margin: '24px 0 12px' }}>
+            ✓ ACCOUNT CREATED!
+          </div>
+          <div style={{ fontFamily: '"VT323", monospace', fontSize: '20px', color: 'var(--dim)', marginBottom: '24px', lineHeight: 1.5 }}>
+            We sent a confirmation link to <span style={{ color: 'var(--cyan)' }}>{email}</span>.<br />
+            Click it to activate your account, then log in.
+          </div>
+          <Link href="/login">
+            <button className="retro-btn retro-btn-cyan" style={{ width: '100%', fontSize: '11px' }}>GO TO LOGIN</button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
