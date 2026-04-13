@@ -5,11 +5,11 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
-  const { user, logout } = useAuth();
+  const { user, profile, logout } = useAuth();
   const router = useRouter();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     router.push('/');
   };
 
@@ -42,82 +42,34 @@ export default function Navbar() {
       </Link>
 
       <div style={{ display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
-        <Link
-          href="/search"
-          style={{
-            fontFamily: '"Press Start 2P", monospace',
-            fontSize: '8px',
-            color: 'var(--green)',
-          }}
-        >
+        <Link href="/search" style={{ fontFamily: '"Press Start 2P", monospace', fontSize: '8px', color: 'var(--green)' }}>
           [SEARCH]
         </Link>
 
-        {user ? (
+        {user && profile ? (
           <>
-            <Link
-              href={`/profile/${user.nickname}`}
-              style={{
-                fontFamily: '"Press Start 2P", monospace',
-                fontSize: '8px',
-                color: 'var(--green)',
-              }}
-            >
+            <Link href={`/profile/${profile.nickname}`} style={{ fontFamily: '"Press Start 2P", monospace', fontSize: '8px', color: 'var(--green)' }}>
               [PROFILE]
             </Link>
-            <Link
-              href="/lists"
-              style={{
-                fontFamily: '"Press Start 2P", monospace',
-                fontSize: '8px',
-                color: 'var(--green)',
-              }}
-            >
+            <Link href="/lists" style={{ fontFamily: '"Press Start 2P", monospace', fontSize: '8px', color: 'var(--green)' }}>
               [LISTS]
             </Link>
-            <span
-              style={{
-                fontFamily: '"VT323", monospace',
-                fontSize: '16px',
-                color: 'var(--dim)',
-              }}
-            >
-              {user.nickname}
+            <span style={{ fontFamily: '"VT323", monospace', fontSize: '16px', color: 'var(--dim)' }}>
+              {profile.nickname}
             </span>
             <button
               onClick={handleLogout}
-              style={{
-                fontFamily: '"Press Start 2P", monospace',
-                fontSize: '8px',
-                background: 'none',
-                border: 'none',
-                color: 'var(--magenta)',
-                cursor: 'pointer',
-              }}
+              style={{ fontFamily: '"Press Start 2P", monospace', fontSize: '8px', background: 'none', border: 'none', color: 'var(--magenta)', cursor: 'pointer' }}
             >
               [LOGOUT]
             </button>
           </>
         ) : (
           <>
-            <Link
-              href="/login"
-              style={{
-                fontFamily: '"Press Start 2P", monospace',
-                fontSize: '8px',
-                color: 'var(--green)',
-              }}
-            >
+            <Link href="/login" style={{ fontFamily: '"Press Start 2P", monospace', fontSize: '8px', color: 'var(--green)' }}>
               [LOGIN]
             </Link>
-            <Link
-              href="/signup"
-              style={{
-                fontFamily: '"Press Start 2P", monospace',
-                fontSize: '8px',
-                color: 'var(--yellow)',
-              }}
-            >
+            <Link href="/signup" style={{ fontFamily: '"Press Start 2P", monospace', fontSize: '8px', color: 'var(--yellow)' }}>
               [SIGN UP]
             </Link>
           </>

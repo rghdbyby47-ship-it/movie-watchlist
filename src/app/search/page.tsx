@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { searchMovies, getPopularMovies } from '@/lib/tmdb';
 import MovieCard from '@/components/MovieCard';
 import { useAuth } from '@/context/AuthContext';
-import { getWatchLogForMovie } from '@/lib/storage';
+import { getUserWatchLogs } from '@/lib/storage';
 
 export default function SearchPage() {
   const { user } = useAuth();
@@ -13,12 +13,15 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [popular, setPopular] = useState<any[]>([]);
+  const [myLogs, setMyLogs] = useState<any[]>([]);
 
   useEffect(() => {
-    getPopularMovies()
-      .then((data) => setPopular(data.results?.slice(0, 12) || []))
-      .catch(() => {});
+    getPopularMovies().then(data => setPopular(data.results?.slice(0, 12) || [])).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (user) getUserWatchLogs(user.id).then(setMyLogs);
+  }, [user]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,90 +40,37 @@ export default function SearchPage() {
 
   const displayMovies = searched ? movies : popular;
 
+  const getRating = (movieId: string) => {
+    const log = myLogs.find(l => l.movie_id === movieId.toString());
+    return log?.user_rating;
+  };
+
   return (
     <div style={{ padding: '40px 24px', maxWidth: '1200px', margin: '0 auto' }}>
-      <div
-        style={{
-          fontFamily: '"Press Start 2P", monospace',
-          fontSize: '13px',
-          color: 'var(--cyan)',
-          marginBottom: '32px',
-        }}
-      >
+      <div style={{ fontFamily: '"Press Start 2P", monospace', fontSize: '13px', color: 'var(--cyan)', marginBottom: '32px' }}>
         ► SEARCH FILMS
       </div>
 
-      <form
-        onSubmit={handleSearch}
-        style={{ display: 'flex', gap: '12px', marginBottom: '40px' }}
-      >
-        <input
-          className="retro-input"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search for any movie..."
-          style={{ flex: 1, fontSize: '22px' }}
-          autoFocus
-        />
-        <button
-          type="submit"
-          className="retro-btn retro-btn-cyan"
-          style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
-        >
-          SEARCH
-        </button>
+      <form onSubmit={handleSearch} style={{ display: 'flex', gap: '12px', marginBottom: '40px' }}>
+        <input className="retro-input" value={query} onChange={e => setQuery(e.target.value)} placeholder="Search for any movie..." style={{ flex: 1, fontSize: '22px' }} autoFocus />
+        <button type="submit" className="retro-btn retro-btn-cyan" style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>SEARCH</button>
         {searched && (
-          <button
-            type="button"
-            className="retro-btn"
-            onClick={() => {
-              setSearched(false);
-              setQuery('');
-              setMovies([]);
-            }}
-          >
-            CLEAR
-          </button>
+          <button type="button" className="retro-btn" onClick={() => { setSearched(false); setQuery(''); setMovies([]); }}>CLEAR</button>
         )}
       </form>
 
-      <div
-        style={{
-          fontFamily: '"Press Start 2P", monospace',
-          fontSize: '10px',
-          color: 'var(--yellow)',
-          marginBottom: '20px',
-        }}
-      >
+      <div style={{ fontFamily: '"Press Start 2P", monospace', fontSize: '10px', color: 'var(--yellow)', marginBottom: '20px' }}>
         {searched ? `RESULTS FOR "${query}"` : '★ POPULAR FILMS'}
       </div>
 
       {loading ? (
-        <div
-          style={{
-            fontFamily: '"VT323", monospace',
-            fontSize: '28px',
-            color: 'var(--green)',
-          }}
-        >
-          SEARCHING<span className="blink">...</span>
-        </div>
+        <div style={{ fontFamily: '"VT323", monospace', fontSize: '28px', color: 'var(--green)' }}>SEARCHING<span className="blink">...</span></div>
       ) : displayMovies.length === 0 && searched ? (
-        <div
-          style={{
-            fontFamily: '"VT323", monospace',
-            fontSize: '24px',
-            color: 'var(--dim)',
-          }}
-        >
-          NO RESULTS FOUND. TRY A DIFFERENT TITLE.
-        </div>
+        <div style={{ fontFamily: '"VT323", monospace', fontSize: '24px', color: 'var(--dim)' }}>NO RESULTS FOUND. TRY A DIFFERENT TITLE.</div>
       ) : (
         <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
           {displayMovies.map((m: any) => {
-            const log = user
-              ? getWatchLogForMovie(user.id, m.id.toString())
-              : undefined;
+            const rating = getRating(m.id.toString());
             return (
               <MovieCard
                 key={m.id}
@@ -128,8 +78,8 @@ export default function SearchPage() {
                 title={m.title}
                 year={m.release_date?.slice(0, 4)}
                 posterPath={m.poster_path}
-                rating={log?.userRating}
-                showRating={!!log}
+                rating={rating}
+                showRating={rating !== undefined}
               />
             );
           })}
