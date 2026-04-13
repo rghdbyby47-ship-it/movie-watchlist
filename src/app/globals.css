@@ -1,26 +1,219 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #080808;
+  --green: #00ff41;
+  --cyan: #00e5ff;
+  --magenta: #ff00ff;
+  --yellow: #ffe600;
+  --red: #ff003c;
+  --white: #dcdcdc;
+  --dim: #444;
+  --card-bg: #0e0e0e;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg);
+  color: var(--green);
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  line-height: 1.5;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* CRT scanline overlay */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.12) 2px,
+    rgba(0, 0, 0, 0.12) 4px
+  );
+  z-index: 9998;
+}
+
+/* Retro grid background */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(0, 255, 65, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 65, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  z-index: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Press Start 2P', monospace;
+  color: var(--cyan);
+  text-shadow: 0 0 10px var(--cyan), 0 0 20px rgba(0, 229, 255, 0.4);
+  line-height: 1.6;
+}
+
+a {
+  color: var(--cyan);
+  text-decoration: none;
+  transition: color 0.1s, text-shadow 0.1s;
+}
+
+a:hover {
+  color: var(--magenta);
+  text-shadow: 0 0 8px var(--magenta);
+}
+
+/* ======================== BUTTONS ======================== */
+.retro-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  padding: 10px 16px;
+  background: transparent;
+  border: 2px solid var(--green);
+  color: var(--green);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.08s;
+  box-shadow: 3px 3px 0 var(--green);
+  position: relative;
+}
+
+.retro-btn:hover {
+  background: var(--green);
+  color: var(--bg);
+  box-shadow: 5px 5px 0 #004400;
+}
+
+.retro-btn:active {
+  box-shadow: 1px 1px 0 var(--green);
+  transform: translate(2px, 2px);
+}
+
+.retro-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.retro-btn-cyan  { border-color:var(--cyan);    color:var(--cyan);    box-shadow:3px 3px 0 var(--cyan);    }
+.retro-btn-cyan:hover  { background:var(--cyan);    color:var(--bg); box-shadow:5px 5px 0 #004455; }
+.retro-btn-cyan:active { box-shadow:1px 1px 0 var(--cyan);    transform:translate(2px,2px); }
+
+.retro-btn-magenta { border-color:var(--magenta); color:var(--magenta); box-shadow:3px 3px 0 var(--magenta); }
+.retro-btn-magenta:hover { background:var(--magenta); color:var(--bg); box-shadow:5px 5px 0 #550055; }
+.retro-btn-magenta:active { box-shadow:1px 1px 0 var(--magenta); transform:translate(2px,2px); }
+
+.retro-btn-yellow  { border-color:var(--yellow);  color:var(--yellow);  box-shadow:3px 3px 0 var(--yellow);  }
+.retro-btn-yellow:hover  { background:var(--yellow);  color:var(--bg); box-shadow:5px 5px 0 #554400; }
+.retro-btn-yellow:active { box-shadow:1px 1px 0 var(--yellow);  transform:translate(2px,2px); }
+
+.retro-btn-red  { border-color:var(--red);  color:var(--red);  box-shadow:3px 3px 0 var(--red);  }
+.retro-btn-red:hover  { background:var(--red);  color:var(--bg); }
+
+/* ======================== INPUTS ======================== */
+.retro-input {
+  font-family: 'VT323', monospace;
+  font-size: 20px;
+  background: #050505;
+  border: 2px solid var(--green);
+  color: var(--green);
+  padding: 8px 12px;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.1s, box-shadow 0.1s;
+}
+
+.retro-input::placeholder { color: var(--dim); }
+
+.retro-input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
+}
+
+textarea.retro-input {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* ======================== CARDS ======================== */
+.retro-card {
+  border: 2px solid var(--green);
+  background: var(--card-bg);
+  box-shadow: 4px 4px 0 var(--green);
+  padding: 16px;
+  position: relative;
+}
+
+.panel-header {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  color: var(--bg);
+  background: var(--green);
+  padding: 6px 12px;
+  margin: -16px -16px 16px -16px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.panel-header-cyan    { background: var(--cyan);    color: var(--bg); }
+.panel-header-magenta { background: var(--magenta); color: var(--bg); }
+.panel-header-yellow  { background: var(--yellow);  color: var(--bg); }
+
+/* ======================== GLOW ======================== */
+.glow-green   { text-shadow: 0 0 10px var(--green),   0 0 20px var(--green);   }
+.glow-cyan    { text-shadow: 0 0 10px var(--cyan),    0 0 20px var(--cyan);    }
+.glow-magenta { text-shadow: 0 0 10px var(--magenta), 0 0 20px var(--magenta); }
+.glow-yellow  { text-shadow: 0 0 10px var(--yellow),  0 0 20px var(--yellow);  }
+
+/* ======================== MODAL ======================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+/* ======================== SCROLLBAR ======================== */
+::-webkit-scrollbar       { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #0a0a0a; }
+::-webkit-scrollbar-thumb { background: var(--green); }
+::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
+
+/* ======================== UTILS ======================== */
+.pixel-font    { font-family: 'Press Start 2P', monospace; }
+.terminal-font { font-family: 'VT323', monospace; }
+
+.blink { animation: blink 1s step-end infinite; }
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
 }
